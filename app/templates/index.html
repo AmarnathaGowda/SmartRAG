@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Knowledge Management System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1>📘 Knowledge Management System</h1>
+
+    <section class="upload-section">
+      <h2>📁 Upload Documents</h2>
+      <form id="upload-form">
+        <input type="file" id="file-input" multiple />
+        <button type="submit">Upload</button>
+      </form>
+    </section>
+
+    <section class="query-section">
+      <h2>❓ Ask Questions</h2>
+      <textarea id="question-input" placeholder="Type your question..."></textarea>
+      <button id="submit-question">Ask</button>
+    </section>
+
+    <section class="response-section">
+      <h2>🧠 Response</h2>
+      <div id="response-content"></div>
+    </section>
+  </div>
+
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      const files = document.getElementById('file-input').files;
+
+      for (let file of files) {
+        formData.append('file', file);
+      }
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        alert(result.message || result.error);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error uploading files');
+      }
+    });
+
+    document.getElementById('submit-question').addEventListener('click', async () => {
+      const question = document.getElementById('question-input').value;
+
+      try {
+        const response = await fetch('/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question })
+        });
+        const result = await response.json();
+        document.getElementById('response-content').textContent = result.response || result.error;
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error getting response');
+      }
+    });
+  </script>
+</body>
+</html>
